@@ -1,0 +1,10 @@
+streamlit
+pandas
+numpy
+scikit-learn
+joblib
+requests
+certifi
+influxdb-client
+python-dotenv
+streamlit-geolocation

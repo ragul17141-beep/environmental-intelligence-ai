@@ -1,0 +1,7 @@
+.venv/
+venv/
+__pycache__/
+.env
+*.pyc
+models/air_quality_model.pkl
+models/air_quality_model.pkl
