@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
+  <meta
+    name="theme-color"
+    content="#0f172a"
+  >
+
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-title"
+    content="EnviroAI"
+  >
+
+  <meta
+    name="description"
+    content="AI-powered air quality prediction and smart mobility recommendations."
+  >
+
+  <link
+    rel="manifest"
+    href="./manifest.webmanifest"
+  >
+
+  <link
+    rel="icon"
+    href="./icons/icon-192.png"
+  >
+
+  <link
+    rel="apple-touch-icon"
+    href="./icons/icon-192.png"
+  >
+
+  <title>EnviroAI</title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #f8fafc;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+    }
+
+    .app {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      height: 58px;
+      flex: 0 0 58px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 14px;
+      color: white;
+      background: #0f172a;
+      box-shadow: 0 2px 12px rgba(0,0,0,.14);
+      z-index: 10;
+    }
+
+    .logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: #22c55e;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+    }
+
+    .name {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    #installBtn {
+      display: none;
+      margin-left: auto;
+      border: 0;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-weight: 700;
+      background: white;
+      color: #0f172a;
+      cursor: pointer;
+    }
+
+    .content {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+      background: white;
+    }
+
+    .loading {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      display: grid;
+      place-items: center;
+      background: #f8fafc;
+    }
+
+    .loading-card {
+      text-align: center;
+      color: #334155;
+      padding: 24px;
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      margin: 0 auto 12px;
+      border: 3px solid #cbd5e1;
+      border-top-color: #0f172a;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="app">
+
+    <header class="topbar">
+
+      <div class="logo">
+        🌍
+      </div>
+
+      <div
+        class="name"
+        id="appName"
+      >
+        EnviroAI
+      </div>
+
+      <button
+        id="installBtn"
+        type="button"
+      >
+        Install App
+      </button>
+
+    </header>
+
+    <main class="content">
+
+      <div
+        class="loading"
+        id="loading"
+      >
+
+        <div class="loading-card">
+
+          <div class="spinner"></div>
+
+          <div>
+            Loading Environmental Intelligence…
+          </div>
+
+        </div>
+
+      </div>
+
+      <iframe
+        id="streamlitApp"
+        title="Environmental Intelligence"
+        allow="geolocation"
+        allowfullscreen
+      ></iframe>
+
+    </main>
+
+  </div>
+
+  <script src="./config.js"></script>
+
+  <script>
+
+    const frame =
+      document.getElementById("streamlitApp");
+
+    const loading =
+      document.getElementById("loading");
+
+    const appName =
+      document.getElementById("appName");
+
+    const installBtn =
+      document.getElementById("installBtn");
+
+    appName.textContent =
+      CONFIG.appShortName || CONFIG.appName;
+
+    frame.src =
+      CONFIG.iframeUrl;
+
+    frame.addEventListener(
+      "load",
+      () => {
+        loading.style.display = "none";
+      }
+    );
+
+    let deferredPrompt = null;
+
+    window.addEventListener(
+      "beforeinstallprompt",
+      (event) => {
+
+        event.preventDefault();
+
+        deferredPrompt = event;
+
+        installBtn.style.display = "block";
+      }
+    );
+
+    installBtn.addEventListener(
+      "click",
+      async () => {
+
+        if (!deferredPrompt) {
+          return;
+        }
+
+        deferredPrompt.prompt();
+
+        await deferredPrompt.userChoice;
+
+        deferredPrompt = null;
+
+        installBtn.style.display = "none";
+      }
+    );
+
+    window.addEventListener(
+      "appinstalled",
+      () => {
+        installBtn.style.display = "none";
+      }
+    );
+
+    if ("serviceWorker" in navigator) {
+
+      window.addEventListener(
+        "load",
+        () => {
+
+          navigator.serviceWorker
+            .register("./service-worker.js")
+            .catch((error) => {
+
+              console.error(
+                "Service worker registration failed:",
+                error
+              );
+
+            });
+
+        }
+      );
+
+    }
+
+  </script>
+
+</body>
+
+</html>
