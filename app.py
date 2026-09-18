@@ -363,7 +363,7 @@ def get_live_environment_data(latitude, longitude):
         air_response = requests.get(
             air_url,
             params=air_params,
-            timeout=10
+            timeout=30
         )
         air_response.raise_for_status()
         air_data = air_response.json()
